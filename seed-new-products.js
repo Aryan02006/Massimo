@@ -3,7 +3,8 @@
 
 const { MongoClient } = require("mongodb");
 
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/massimo";
+const MONGODB_URI =
+  process.env.MONGODB_URI || "mongodb://localhost:27017/massimo";
 
 const newProducts = [
   // === PASTAS (3 new) ===
@@ -148,7 +149,9 @@ async function main() {
       skipped++;
     } else {
       await db.collection("products").insertOne(product);
-      console.log(`✅ Added "${product.title}" -> ${product.catSlug} ($${product.price})`);
+      console.log(
+        `✅ Added "${product.title}" -> ${product.catSlug} ($${product.price})`,
+      );
       inserted++;
     }
   }
@@ -156,10 +159,18 @@ async function main() {
   console.log(`\nDone! Inserted: ${inserted}, Skipped: ${skipped}`);
 
   // Summary
-  const pastas = await db.collection("products").countDocuments({ catSlug: "pastas" });
-  const burgers = await db.collection("products").countDocuments({ catSlug: "burgers" });
-  const pizzas = await db.collection("products").countDocuments({ catSlug: "pizzas" });
-  console.log(`\nMenu totals: ${pastas} pastas, ${burgers} burgers, ${pizzas} pizzas (${pastas + burgers + pizzas} total)`);
+  const pastas = await db
+    .collection("products")
+    .countDocuments({ catSlug: "pastas" });
+  const burgers = await db
+    .collection("products")
+    .countDocuments({ catSlug: "burgers" });
+  const pizzas = await db
+    .collection("products")
+    .countDocuments({ catSlug: "pizzas" });
+  console.log(
+    `\nMenu totals: ${pastas} pastas, ${burgers} burgers, ${pizzas} pizzas (${pastas + burgers + pizzas} total)`,
+  );
 
   await client.close();
 }

@@ -3,11 +3,12 @@
 
 const { MongoClient } = require("mongodb");
 
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/massimo";
+const MONGODB_URI =
+  process.env.MONGODB_URI || "mongodb://localhost:27017/massimo";
 
 const categoryMap = {
   // Pizzas
-  "Sicilian": "pizzas",
+  Sicilian: "pizzas",
   "Bella Napoli": "pizzas",
   "Margherita Magic": "pizzas",
   "Mediterranean Delight": "pizzas",
@@ -32,10 +33,9 @@ async function main() {
   for (const product of products) {
     const catSlug = categoryMap[product.title];
     if (catSlug) {
-      await db.collection("products").updateOne(
-        { _id: product._id },
-        { $set: { catSlug } }
-      );
+      await db
+        .collection("products")
+        .updateOne({ _id: product._id }, { $set: { catSlug } });
       console.log(`✅ "${product.title}" -> catSlug: "${catSlug}"`);
     } else {
       console.log(`⚠️  No mapping for "${product.title}"`);

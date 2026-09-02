@@ -16,9 +16,7 @@ const CountDown = () => {
 
   if (!mounted) {
     return (
-      <span className="font-bold text-5xl text-yellow-300">
-        0d 00h 00m 00s
-      </span>
+      <span className="font-bold text-5xl text-yellow-300">0d 00h 00m 00s</span>
     );
   }
 

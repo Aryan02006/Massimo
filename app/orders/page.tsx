@@ -141,8 +141,8 @@ export default function OrdersPage() {
               </h2>
 
               <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-slate-600">
-                You have not placed any orders yet. Explore our menu and
-                treat yourself to something delicious!
+                You have not placed any orders yet. Explore our menu and treat
+                yourself to something delicious!
               </p>
 
               <Link

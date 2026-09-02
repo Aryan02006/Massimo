@@ -35,7 +35,6 @@ const CategoryPage = async ({
     );
   }
 
-
   return (
     <div className="flex flex-wrap text-red-500">
       {products.map((item) => {
@@ -80,4 +79,3 @@ const CategoryPage = async ({
 };
 
 export default CategoryPage;
-

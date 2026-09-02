@@ -15,7 +15,7 @@ const links = [
 
 const MenuPage = () => {
   const router = useRouter();
-  const [open, setOpen] = useState(false); 
+  const [open, setOpen] = useState(false);
 
   const [user, setUser] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);

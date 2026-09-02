@@ -64,4 +64,3 @@ const SingleProductPage = async ({
 };
 
 export default SingleProductPage;
-

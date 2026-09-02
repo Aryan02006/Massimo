@@ -28,19 +28,12 @@ const SingleProductClient = ({
         {/* IMAGE CONTAINER */}
         {img && (
           <div className="relative w-full h-1/2 md:h-[70%]">
-            <Image
-              src={img}
-              alt={title}
-              className="object-contain"
-              fill
-            />
+            <Image src={img} alt={title} className="object-contain" fill />
           </div>
         )}
 
         <div className="h-1/2 flex flex-col gap-4 md:h-[70%] md:justify-center md:gap-6 xl:gap-8">
-          <h1 className="text-3xl font-bold uppercase xl:text-5xl">
-            {title}
-          </h1>
+          <h1 className="text-3xl font-bold uppercase xl:text-5xl">{title}</h1>
           <p>{desc}</p>
           <Price
             price={price}

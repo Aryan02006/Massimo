@@ -174,7 +174,11 @@ export default function CheckoutPage() {
           delivery,
           discount,
           coupon: appliedCoupon
-            ? { code: appliedCoupon.code, type: appliedCoupon.type, value: appliedCoupon.value }
+            ? {
+                code: appliedCoupon.code,
+                type: appliedCoupon.type,
+                value: appliedCoupon.value,
+              }
             : null,
           total,
         }),
@@ -529,7 +533,9 @@ export default function CheckoutPage() {
                       disabled={placing}
                       className="w-full rounded-3xl cursor-pointer bg-red-500 px-5 py-4 text-sm font-black uppercase tracking-wide text-white transition hover:bg-red-700 focus:outline-none focus:ring-red-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
                     >
-                      {placing ? "Placing Order…" : `Place Order · ${money(total)}`}
+                      {placing
+                        ? "Placing Order…"
+                        : `Place Order · ${money(total)}`}
                     </button>
 
                     <p className="mt-4 text-center text-xs leading-5 text-slate-500">
