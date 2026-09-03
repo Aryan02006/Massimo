@@ -4,22 +4,21 @@ import clientPromise from "@/lib/mongodb";
 
 export async function GET(request: NextRequest) {
   try {
-    const authCookie = request.cookies.get("massimo-auth");
+    const authCookie = request.cookies.get("massimo-admin-auth");
 
     if (!authCookie) {
       return NextResponse.json(
-        {
-          success: false,
-          authenticated: false,
-          message: "Not authenticated",
+        { success: false, 
+          authenticated: false, 
+          message: "Not authenticated" 
         },
         { status: 401 },
       );
     }
 
-    const userId = authCookie.value;
+    const adminId = authCookie.value;
 
-    if (!ObjectId.isValid(userId)) {
+    if (!ObjectId.isValid(adminId)) {
       return NextResponse.json(
         {
           success: false,
@@ -32,19 +31,13 @@ export async function GET(request: NextRequest) {
 
     const client = await clientPromise;
     const db = client.db("Massimo");
-    const users = db.collection("users");
+    const admins = db.collection("admins");
 
-    const user = await users.findOne({
-      _id: new ObjectId(userId),
-    });
+    const admin = await admins.findOne({ _id: new ObjectId(adminId) });
 
-    if (!user) {
+    if (!admin) {
       return NextResponse.json(
-        {
-          success: false,
-          authenticated: false,
-          message: "User not found",
-        },
+        { success: false, authenticated: false, message: "Admin not found" },
         { status: 401 },
       );
     }
@@ -52,14 +45,13 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       authenticated: true,
-      user: {
-        id: user._id.toString(),
-        username: user.username,
-        email: user.email,
+      admin: {
+        id: admin._id.toString(),
+        username: admin.username,
       },
     });
   } catch (error) {
-    console.error("Me API error:", error);
+    console.error("Admin me API error:", error);
 
     return NextResponse.json(
       {
