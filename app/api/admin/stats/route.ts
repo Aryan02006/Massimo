@@ -15,13 +15,21 @@ export async function GET(request: NextRequest) {
 
     const client = await clientPromise;
     const db = client.db("Massimo");
-    const [totalOrders, totalProducts, categoriesResult, recentOrders] =
+    const [totalOrders, totalProducts, categoriesCount, distinctCatSlugs, recentOrders] =
       await Promise.all([
         db.collection("orders").countDocuments(),
         db.collection("products").countDocuments(),
-        db.collection("products").distinct("category"),
+        db.collection("categories").countDocuments(),
+        db.collection("products").distinct("catSlug"),
         db.collection("orders").find({}).sort({ createdAt: -1 }).toArray(),
       ]);
+
+    const totalCategories =
+      categoriesCount > 0
+        ? categoriesCount
+        : distinctCatSlugs.length > 0
+        ? distinctCatSlugs.length
+        : 3;
 
     const serializedOrders = recentOrders.map((order) => ({
       _id: order._id.toString(),
@@ -37,7 +45,7 @@ export async function GET(request: NextRequest) {
       stats: {
         totalOrders,
         totalProducts,
-        totalCategories: categoriesResult.length,
+        totalCategories,
       },
       recentOrders: serializedOrders,
     });

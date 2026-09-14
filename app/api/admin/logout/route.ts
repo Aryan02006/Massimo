@@ -11,7 +11,17 @@ export async function POST() {
       name: "massimo-admin-auth",
       value: "",
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: false,
+      sameSite: "lax",
+      path: "/",
+      maxAge: 0,
+    });
+
+    response.cookies.set({
+      name: "massimo-auth",
+      value: "",
+      httpOnly: true,
+      secure: false,
       sameSite: "lax",
       path: "/",
       maxAge: 0,

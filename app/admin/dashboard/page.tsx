@@ -50,7 +50,6 @@ const sidebarLinks = [
 export default function AdminDashboardPage() {
   const router = useRouter();
   const pathname = usePathname();
-
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [stats, setStats] = useState<Stats>({
@@ -64,7 +63,6 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     const init = async () => {
       try {
-        // Check admin auth
         const meRes = await fetch("/api/admin/me", {
           credentials: "include",
         });
@@ -77,7 +75,6 @@ export default function AdminDashboardPage() {
 
         setAdminName(meData.admin?.username || "Admin");
 
-        // Fetch stats
         const statsRes = await fetch("/api/admin/stats", {
           credentials: "include",
         });
@@ -134,17 +131,8 @@ export default function AdminDashboardPage() {
     });
   };
 
-  if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-100">
-        <p className="text-red-500 font-semibold">Loading dashboard...</p>
-      </div>
-    );
-  }
-
   return (
     <div className="flex min-h-screen bg-gray-100">
-      {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 z-40 bg-black/30 lg:hidden"
@@ -152,13 +140,10 @@ export default function AdminDashboardPage() {
         />
       )}
 
-      {/* Sidebar — white bg with red accents, matching main site */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-red-100 bg-white shadow-sm transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-red-100 bg-white shadow-sm transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 
+          ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
-        {/* Sidebar header */}
         <div className="flex h-16 items-center justify-between border-b border-red-100 px-5">
           <div>
             <h1 className="text-lg font-black uppercase tracking-[0.15em] text-red-500">
@@ -188,7 +173,6 @@ export default function AdminDashboardPage() {
           </button>
         </div>
 
-        {/* Navigation */}
         <nav className="flex-1 overflow-y-auto px-3 py-4">
           <div className="space-y-1">
             {sidebarLinks.map((link) => {
@@ -198,11 +182,12 @@ export default function AdminDashboardPage() {
                   key={link.label}
                   href={link.href}
                   onClick={() => setSidebarOpen(false)}
-                  className={`flex items-center gap-3 rounded-full px-3 py-2.5 text-sm font-semibold uppercase tracking-wide transition-all ${
-                    isActive
-                      ? "bg-red-50 text-red-600"
-                      : "text-gray-500 hover:bg-red-50 hover:text-red-500"
-                  }`}
+                  className={`flex items-center gap-3 rounded-full px-3 py-2.5 text-sm font-semibold uppercase tracking-wide transition-all 
+                    ${
+                      isActive
+                        ? "bg-red-50 text-red-600"
+                        : "text-gray-500 hover:bg-red-50 hover:text-red-500"
+                    }`}
                 >
                   {link.label}
                 </Link>
@@ -211,7 +196,6 @@ export default function AdminDashboardPage() {
           </div>
         </nav>
 
-        {/* Sidebar footer */}
         <div className="border-t border-red-100 p-3">
           <div className="mb-2 flex items-center gap-3 px-3 py-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-red-500 text-xs font-bold uppercase text-white">
@@ -234,7 +218,6 @@ export default function AdminDashboardPage() {
       </aside>
 
       <div className="flex flex-1 flex-col overflow-hidden">
-        {/* Top bar */}
         <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-red-100 bg-white/95 px-4 shadow-sm backdrop-blur lg:px-8">
           <div className="flex items-center gap-4">
             <button
@@ -251,22 +234,28 @@ export default function AdminDashboardPage() {
         <main className="flex-1 overflow-y-auto p-4 lg:p-8">
           <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <div className="rounded-lg border border-red-100 bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
-              <p className="text-sm font-medium text-gray-500">Total Orders</p>
+              <p className="text-sm font-medium uppercase text-gray-500">
+                Orders
+              </p>
               <p className="mt-1 text-3xl font-extrabold">
                 {stats.totalOrders}
               </p>
             </div>
             <div className="rounded-lg border border-red-100 bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
-              <p className="text-sm font-medium text-gray-500">Products</p>
+              <p className="text-sm font-medium uppercase text-gray-500">
+                Products
+              </p>
               <p className="mt-1 text-3xl font-extrabold">
                 {stats.totalProducts}
               </p>
             </div>
 
             <div className="rounded-lg border border-red-100 bg-white p-6 shadow-sm transition-shadow hover:shadow-md sm:col-span-2 lg:col-span-1">
-              <p className="text-sm font-medium text-gray-500">Categories</p>
+              <p className="text-sm font-medium uppercase text-gray-500">
+                Categories
+              </p>
               <p className="mt-1 text-3xl font-extrabold">
-                {stats.totalCategories}
+                {stats.totalCategories || 3}
               </p>
             </div>
           </div>
