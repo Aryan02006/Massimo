@@ -30,10 +30,13 @@ type Order = {
   coupon?: { code: string; type: string; value: number } | null;
   total: number;
   status: string;
+  paymentMethod?: string;
+  paymentStatus?: string;
+  razorpayPaymentId?: string;
   createdAt: string;
 };
 
-const money = (amount: number) => `$${amount.toFixed(2)}`;
+const money = (amount: number) => `₹${amount.toFixed(2)}`;
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
@@ -188,9 +191,22 @@ export default function OrdersPage() {
                     </p>
 
                     <div className="mt-3 flex items-center justify-between border-t border-red-50 pt-3">
-                      <span className="text-xs text-slate-400">
-                        {formatDate(order.createdAt)}
-                      </span>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-xs text-slate-400">
+                          {formatDate(order.createdAt)}
+                        </span>
+                        {order.paymentMethod && (
+                          <span
+                            className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                              order.paymentStatus === "Paid" || order.paymentMethod === "Razorpay"
+                                ? "bg-emerald-50 text-emerald-700"
+                                : "bg-amber-50 text-amber-700"
+                            }`}
+                          >
+                            {order.paymentMethod === "Razorpay" ? "💳 Razorpay" : order.paymentMethod}
+                          </span>
+                        )}
+                      </div>
 
                       <span className="text-base font-black text-red-500">
                         {money(order.total)}
