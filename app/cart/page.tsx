@@ -71,14 +71,14 @@ const CartPage = () => {
                 <div className="flex-1">
                   <h2 className="font-bold uppercase">{item.title}</h2>
                   {item.option && <p className="text-sm">{item.option}</p>}
-                  <p>${item.price.toFixed(2)}</p>
+                  <p>₹{item.price.toFixed(2)}</p>
                 </div>
                 <div className="flex items-center gap-3">
                   <button
                     aria-label={`Decrease ${item.title} quantity`}
                     onClick={() =>
                       updateCartQuantity(
-                        item.id,
+                         item.id,
                         item.option,
                         item.quantity - 1,
                       )
@@ -109,7 +109,7 @@ const CartPage = () => {
               </div>
             ))}
             <p className="pt-4 text-2xl font-bold">
-              Total: ${total.toFixed(2)}
+              Total: ₹{total.toFixed(2)}
             </p>
             <Link
               href="/checkout"

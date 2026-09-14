@@ -140,7 +140,7 @@ const Featured = () => {
 
                 <p className="p-4 2xl:p-8">{item.desc}</p>
 
-                <span className="text-xl font-bold">${item.price}</span>
+                <span className="text-xl font-bold">₹{item.price}</span>
 
                 <button
                   className="cursor-pointer rounded-md bg-red-500 px-4 py-2 text-white transition hover:bg-red-600"

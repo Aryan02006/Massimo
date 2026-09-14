@@ -63,7 +63,7 @@ const CategoryPage = async ({
               >
                 {product.title}
               </Link>
-              <h2 className="group-hover:hidden text-xl">${product.price}</h2>
+              <h2 className="group-hover:hidden text-xl">₹{product.price}</h2>
               <AddToCartButton
                 id={product._id.toString()}
                 title={product.title}

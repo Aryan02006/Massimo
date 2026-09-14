@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          message: `This code requires a subtotal of $${coupon.minimumSubtotal.toFixed(2)}.`,
+          message: `This code requires a subtotal of ₹${coupon.minimumSubtotal.toFixed(2)}.`,
         },
         { status: 400 },
       );
