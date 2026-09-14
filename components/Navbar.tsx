@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Menu from "./Menu";
 import Link from "next/link";
 import CartICon from "@/components/CartIcon";
@@ -14,12 +14,21 @@ const navLinks = [
   { href: "/contact", label: "Contact" },
 ];
 
+type UserData = {
+  id?: string;
+  username?: string;
+  email?: string;
+};
+
 const NavbarPage = () => {
   const router = useRouter();
   const pathname = usePathname();
 
   const [user, setUser] = useState(false);
+  const [userData, setUserData] = useState<UserData | null>(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const checkAuthentication = async () => {
@@ -34,12 +43,15 @@ const NavbarPage = () => {
 
         if (response.ok && data.success && data.authenticated) {
           setUser(true);
+          setUserData(data.user || null);
         } else {
           setUser(false);
+          setUserData(null);
         }
       } catch (error) {
         console.error("Authentication check failed:", error);
         setUser(false);
+        setUserData(null);
       } finally {
         setCheckingAuth(false);
       }
@@ -48,11 +60,32 @@ const NavbarPage = () => {
     checkAuthentication();
   }, [pathname]);
 
+  // Close dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setDropdownOpen(false);
+      }
+    };
+
+    if (dropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [dropdownOpen]);
+
   const handleLogout = async () => {
+    setDropdownOpen(false);
     const success = await logout();
 
     if (success) {
       setUser(false);
+      setUserData(null);
       router.push("/login");
       router.refresh();
     } else {
@@ -116,12 +149,122 @@ const NavbarPage = () => {
                 <CartICon />
               </div>
 
-              <button
-                onClick={handleLogout}
-                className="rounded-full border border-red-200 px-4 py-2 text-sm font-bold uppercase tracking-wide transition-colors hover:border-red-500 hover:bg-red-50"
-              >
-                LOGOUT
-              </button>
+              {/* User Icon & Dropdown */}
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  type="button"
+                  aria-expanded={dropdownOpen}
+                  aria-label="User profile menu"
+                  onClick={() => setDropdownOpen((prev) => !prev)}
+                  className={`flex h-10 w-10 items-center justify-center rounded-full border transition-all duration-200 focus:outline-none ${
+                    dropdownOpen
+                      ? "border-red-500 bg-red-500 text-white shadow-md shadow-red-200"
+                      : "border-red-200 bg-red-50 text-red-600 hover:border-red-400 hover:bg-red-100/70"
+                  }`}
+                >
+                  <svg
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={2}
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
+                    />
+                  </svg>
+                </button>
+
+                {/* Dropdown Menu */}
+                {dropdownOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-56 origin-top-right rounded-2xl border border-red-100 bg-white p-2 text-gray-800 shadow-xl ring-1 ring-black/5 z-50 animate-in fade-in zoom-in-95">
+                    {userData?.username && (
+                      <div className="border-b border-gray-100 px-3 py-2.5">
+                        <p className="text-xs font-medium uppercase tracking-wider text-gray-400">
+                          Signed in as
+                        </p>
+                        <p className="truncate text-sm font-bold text-gray-900">
+                          {userData.username}
+                        </p>
+                        {userData.email && (
+                          <p className="truncate text-xs text-gray-500">
+                            {userData.email}
+                          </p>
+                        )}
+                      </div>
+                    )}
+
+                    <div className="py-1">
+                      <Link
+                        href="/profile"
+                        onClick={() => setDropdownOpen(false)}
+                        className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-semibold text-gray-700 transition hover:bg-red-50 hover:text-red-600"
+                      >
+                        <svg
+                          className="h-4 w-4 text-red-500"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth={2}
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+                          />
+                        </svg>
+                        <span>My Profile</span>
+                      </Link>
+
+                      <Link
+                        href="/orders"
+                        onClick={() => setDropdownOpen(false)}
+                        className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-semibold text-gray-700 transition hover:bg-red-50 hover:text-red-600"
+                      >
+                        <svg
+                          className="h-4 w-4 text-red-500"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth={2}
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"
+                          />
+                        </svg>
+                        <span>My Orders</span>
+                      </Link>
+                    </div>
+
+                    <div className="border-t border-gray-100 pt-1">
+                      <button
+                        type="button"
+                        onClick={handleLogout}
+                        className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50"
+                      >
+                        <svg
+                          className="h-4 w-4"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth={2}
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75"
+                          />
+                        </svg>
+                        <span>Logout</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </>
           )}
         </div>
@@ -131,3 +274,4 @@ const NavbarPage = () => {
 };
 
 export default NavbarPage;
+

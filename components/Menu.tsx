@@ -113,6 +113,14 @@ const MenuPage = () => {
           ) : (
             <>
               <Link
+                href="/profile"
+                onClick={() => setOpen(false)}
+                className="rounded-full px-6 py-2 text-2xl font-bold uppercase tracking-wide transition-colors hover:bg-white/15"
+              >
+                My Profile
+              </Link>
+
+              <Link
                 href="/orders"
                 onClick={() => setOpen(false)}
                 className="rounded-full px-6 py-2 text-2xl font-bold uppercase tracking-wide transition-colors hover:bg-white/15"

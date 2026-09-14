@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from "react";
 import Countdown from "react-countdown";
 
-// Set countdown date dynamically or future date
 const targetDate = new Date();
 targetDate.setDate(targetDate.getDate() + 5);
 
