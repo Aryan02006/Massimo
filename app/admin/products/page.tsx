@@ -73,7 +73,6 @@ export default function AdminProductsPage() {
   const [uploadingImg, setUploadingImg] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
 
-  // Delete Modal
   const [deleteProduct, setDeleteProduct] = useState<Product | null>(null);
   const [deleting, setDeleting] = useState(false);
 
@@ -373,9 +372,7 @@ export default function AdminProductsPage() {
         </div>
       </div>
 
-      {/* Filters & Actions Bar */}
       <div className="mb-6 flex flex-col gap-4 rounded-2xl border border-red-100 bg-white p-4 shadow-xs lg:flex-row lg:items-center lg:justify-between">
-        {/* Category Tabs */}
         <div className="flex flex-wrap items-center gap-1.5 overflow-x-auto">
           <button
             onClick={() => setSelectedCategory("all")}

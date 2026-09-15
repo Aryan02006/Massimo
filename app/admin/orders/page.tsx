@@ -340,19 +340,9 @@ export default function AdminOrdersPage() {
             {stats.delivered}
           </p>
         </div>
-
-        {/* <div className="rounded-2xl border border-red-100 bg-white p-4 shadow-xs transition hover:shadow-sm">
-          <p className="text-xs font-semibold uppercase tracking-wider text-red-500">
-            Total Sales
-          </p>
-          <p className="mt-1 text-2xl font-black text-red-600">
-            {money(stats.totalRevenue)}
-          </p>
-        </div> */}
       </div>
 
       <div className="mb-6 flex flex-col gap-4 rounded-2xl border border-red-100 bg-white p-4 shadow-xs sm:flex-row sm:items-center sm:justify-between">
-        {/* Status Filter Tabs */}
         <div className="flex flex-wrap items-center gap-1.5 overflow-x-auto">
           {[
             "All",
@@ -379,7 +369,6 @@ export default function AdminOrdersPage() {
           })}
         </div>
 
-        {/* Search Input */}
         <div className="relative min-w-[240px]">
           <input
             type="text"
@@ -412,7 +401,6 @@ export default function AdminOrdersPage() {
         </div>
       </div>
 
-      {/* Orders Table */}
       <div className="overflow-hidden rounded-2xl border border-red-100 bg-white shadow-xs">
         {loading ? (
           <div className="divide-y divide-red-50 p-6">
@@ -480,14 +468,12 @@ export default function AdminOrdersPage() {
                       key={order._id}
                       className="transition hover:bg-red-50/30"
                     >
-                      {/* Order ID */}
                       <td className="whitespace-nowrap px-5 py-4 font-mono font-bold text-gray-900">
                         <span className="rounded-lg bg-red-50 px-2.5 py-1 text-red-600">
                           #{order._id.slice(-6).toUpperCase()}
                         </span>
                       </td>
 
-                      {/* Customer */}
                       <td className="px-5 py-4">
                         <p className="font-bold text-gray-800">
                           {order.customer?.name || "Anonymous"}
@@ -498,7 +484,6 @@ export default function AdminOrdersPage() {
                         </p>
                       </td>
 
-                      {/* Items */}
                       <td className="max-w-xs truncate px-5 py-4 text-gray-600">
                         <span className="font-semibold text-gray-800">
                           {order.items?.length || 0}{" "}
@@ -511,25 +496,14 @@ export default function AdminOrdersPage() {
                         </p>
                       </td>
 
-                      {/* Total & Payment */}
                       <td className="whitespace-nowrap px-5 py-4">
                         <div className="font-extrabold text-red-600">
                           {money(order.total)}
                         </div>
                         <div className="mt-0.5 flex items-center gap-1">
-                          {/* <span
-                            className={`rounded px-1.5 py-0.5 text-[9px] font-bold ${
-                              order.paymentStatus === "Paid" || order.paymentMethod === "Razorpay"
-                                ? "bg-emerald-50 text-emerald-700"
-                                : "bg-amber-50 text-amber-700"
-                            }`}
-                          >
-                            {order.paymentMethod === "Razorpay" ? "💳 Razorpay" : order.paymentMethod || "COD"}
-                          </span> */}
                         </div>
                       </td>
 
-                      {/* Status + Dropdown */}
                       <td className="whitespace-nowrap px-5 py-4">
                         <div className="relative inline-block">
                           <select
@@ -562,7 +536,6 @@ export default function AdminOrdersPage() {
                         {formatDate(order.createdAt)}
                       </td>
 
-                      {/* Actions */}
                       <td className="whitespace-nowrap px-5 py-4 text-right">
                         <div className="flex items-center justify-end gap-2">
                           <button
@@ -619,7 +592,6 @@ export default function AdminOrdersPage() {
         )}
       </div>
 
-      {/* Order Detail Modal */}
       {selectedOrder && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs">
           <div className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl border border-red-100 bg-white p-6 shadow-2xl sm:p-8">
@@ -669,7 +641,6 @@ export default function AdminOrdersPage() {
               </button>
             </div>
 
-            {/* Modal Content */}
             <div className="mt-6 space-y-6">
               {/* Customer Information Card */}
               <div className="rounded-2xl border border-red-100 bg-red-50/30 p-4">
@@ -749,7 +720,6 @@ export default function AdminOrdersPage() {
                 </div>
               </div>
 
-              {/* Items List */}
               <div>
                 <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3">
                   Ordered Items ({selectedOrder.items?.length || 0})
@@ -839,7 +809,6 @@ export default function AdminOrdersPage() {
               </div>
             </div>
 
-            {/* Modal Footer */}
             <div className="mt-8 flex justify-end gap-3 border-t border-red-100 pt-4">
               <button
                 onClick={() => setSelectedOrder(null)}
@@ -858,7 +827,6 @@ export default function AdminOrdersPage() {
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
       {deleteModalOrder && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs">
           <div className="w-full max-w-md rounded-3xl border border-red-100 bg-white p-6 shadow-2xl text-center">

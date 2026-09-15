@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+  <defs>
+    <linearGradient id="emblemGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ef4444" />
+      <stop offset="100%" stop-color="#991b1b" />
+    </linearGradient>
+  </defs>
+  <rect width="120" height="120" rx="28" fill="url(#emblemGrad)" />
+  <circle cx="60" cy="60" r="48" stroke="white" stroke-width="2.5" stroke-dasharray="6 3" opacity="0.6"/>
+  
+  <!-- Stylized M with Pizza / Flame Motif -->
+  <path d="M38 78 V42 L60 62 L82 42 V78" stroke="white" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" />
+  <circle cx="60" cy="34" r="5" fill="#facc15" />
+</svg>

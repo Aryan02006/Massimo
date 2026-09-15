@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 100" fill="none">
+  <defs>
+    <linearGradient id="massimoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ef4444" />
+      <stop offset="100%" stop-color="#b91c1c" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#ef4444" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- Emblem Icon -->
+  <g transform="translate(10, 10)">
+    <!-- Pizza / Chef Hat / Cloche stylized emblem -->
+    <circle cx="40" cy="40" r="38" fill="url(#massimoGrad)" filter="url(#shadow)"/>
+    <circle cx="40" cy="40" r="33" stroke="white" stroke-width="2" stroke-dasharray="4 2" fill="none" opacity="0.6"/>
+    
+    <!-- Stylized Pizza Slice / Crown inside -->
+    <path d="M40 18 L58 54 A22 22 0 0 1 22 54 Z" fill="white" />
+    <circle cx="40" cy="32" r="3.5" fill="#ef4444"/>
+    <circle cx="34" cy="42" r="3" fill="#ef4444"/>
+    <circle cx="46" cy="43" r="3" fill="#ef4444"/>
+    
+    <!-- Steam / Savor waves -->
+    <path d="M33 13 Q35 9 37 13 Q39 17 41 13" stroke="white" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.8"/>
+    <path d="M42 12 Q44 8 46 12 Q48 16 50 12" stroke="white" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.8"/>
+  </g>
+
+  <!-- Brand Typography -->
+  <text x="105" y="56" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="40" font-weight="900" letter-spacing="4" fill="#ef4444">
+    MASSIMO
+  </text>
+  <text x="108" y="76" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="700" letter-spacing="5" fill="#6b7280">
+    ITALIAN CULINARY ART
+  </text>
+</svg>

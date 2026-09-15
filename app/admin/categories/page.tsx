@@ -80,7 +80,6 @@ export default function AdminCategoriesPage() {
     fetchCategories();
   }, [fetchCategories]);
 
-  // Auto-generate slug from title if user hasn't typed a custom slug
   const handleTitleChange = (val: string) => {
     setFormTitle(val);
     if (!isSlugManuallyEdited || !formSlug) {
@@ -352,7 +351,6 @@ export default function AdminCategoriesPage() {
         </div>
       </div>
 
-      {/* Filter / Search Bar */}
       <div className="mb-6 flex flex-col gap-4 rounded-2xl border border-red-100 bg-white p-4 shadow-xs sm:flex-row sm:items-center sm:justify-between">
         <div className="relative flex-1 sm:max-w-md">
           <input
@@ -406,7 +404,6 @@ export default function AdminCategoriesPage() {
         </button>
       </div>
 
-      {/* Category Grid */}
       {loading ? (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {[1, 2, 3].map((i) => (
@@ -566,7 +563,6 @@ export default function AdminCategoriesPage() {
       {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs">
           <div className="relative max-h-[92vh] w-full max-w-xl overflow-y-auto rounded-3xl border border-red-100 bg-white p-6 shadow-2xl sm:p-8">
-            {/* Modal Header */}
             <div className="flex items-center justify-between border-b border-red-100 pb-4">
               <div>
                 <h3 className="text-lg font-black uppercase text-red-500 sm:text-xl">
@@ -598,7 +594,6 @@ export default function AdminCategoriesPage() {
               </button>
             </div>
 
-            {/* Error message */}
             {formError && (
               <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-3 text-xs font-semibold text-red-600">
                 {formError}
@@ -621,7 +616,6 @@ export default function AdminCategoriesPage() {
                 />
               </div>
 
-              {/* Category Slug & Color */}
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-wider text-gray-700">
@@ -661,7 +655,6 @@ export default function AdminCategoriesPage() {
                 </div>
               </div>
 
-              {/* Description */}
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-gray-700">
                   Description
@@ -675,13 +668,11 @@ export default function AdminCategoriesPage() {
                 />
               </div>
 
-              {/* Category Image Upload & Selector */}
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-gray-700">
                   Category Banner Image
                 </label>
 
-                {/* Drag and Drop Zone */}
                 <div
                   onDrop={handleDrop}
                   onDragOver={handleDragOver}
@@ -735,7 +726,6 @@ export default function AdminCategoriesPage() {
                   )}
                 </div>
 
-                {/* Preset quick picker */}
                 <div className="mt-3">
                   <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1.5">
                     Or select a preset background:
@@ -758,7 +748,6 @@ export default function AdminCategoriesPage() {
                   </div>
                 </div>
 
-                {/* Direct Image URL input */}
                 <div className="mt-2.5">
                   <input
                     type="text"
@@ -769,7 +758,6 @@ export default function AdminCategoriesPage() {
                   />
                 </div>
 
-                {/* Image Preview Banner */}
                 {formImg && (
                   <div className="mt-3">
                     <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">
@@ -802,7 +790,6 @@ export default function AdminCategoriesPage() {
                 )}
               </div>
 
-              {/* Submit Buttons */}
               <div className="flex items-center justify-end gap-3 border-t border-red-100 pt-4">
                 <button
                   type="button"
@@ -827,7 +814,6 @@ export default function AdminCategoriesPage() {
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
       {deleteCategory && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs">
           <div className="w-full max-w-md rounded-3xl border border-red-100 bg-white p-6 shadow-2xl">
@@ -850,9 +836,7 @@ export default function AdminCategoriesPage() {
               Delete &quot;{deleteCategory.title}&quot;?
             </h3>
             <p className="mt-2 text-xs text-gray-500">
-              Are you sure you want to delete this category? Products associated
-              with the slug &quot;{deleteCategory.slug}&quot; will remain in the
-              database. This action cannot be undone.
+              This action cannot be undone. All products under this category will be moved to the default category. Are you sure you want to proceed?
             </p>
             <div className="mt-6 flex items-center justify-end gap-3">
               <button

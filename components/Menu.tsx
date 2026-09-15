@@ -6,6 +6,7 @@ import React, { useEffect, useState } from "react";
 import CartICon from "@/components/CartIcon";
 import { logout } from "@/components/auth";
 import { useRouter } from "next/navigation";
+import { useSettings } from "@/context/SettingsContext";
 
 const links = [
   { id: 1, title: "HomePage", url: "/" },
@@ -15,10 +16,12 @@ const links = [
 
 const MenuPage = () => {
   const router = useRouter();
+  const { settings } = useSettings();
   const [open, setOpen] = useState(false);
 
   const [user, setUser] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
+
 
   useEffect(() => {
     const checkUser = async () => {
@@ -87,9 +90,23 @@ const MenuPage = () => {
 
       {open && (
         <div className="absolute left-0 top-12 md:top-24 z-10 flex h-[calc(100vh-3rem)] md:h-[calc(100vh-6rem)] w-full flex-col items-center justify-center gap-4 border-t border-red-400 bg-red-500 px-6 text-white shadow-2xl">
-          <p className="mb-4 text-xs font-bold uppercase tracking-[0.3em] text-red-100">
-            Massimo
-          </p>
+          {settings.logoUrl ? (
+            <div className="mb-2 flex items-center justify-center p-2 rounded-2xl bg-white/10 backdrop-blur-sm max-w-[200px]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={settings.logoUrl}
+                alt={settings.restaurantName || "Massimo"}
+                className="max-h-12 w-auto object-contain brightness-0 invert"
+                onError={(e) => {
+                  (e.target as HTMLElement).style.display = "none";
+                }}
+              />
+            </div>
+          ) : (
+            <p className="mb-4 text-xs font-bold uppercase tracking-[0.3em] text-red-100">
+              {settings.restaurantName || "Massimo"}
+            </p>
+          )}
 
           {links.map((item) => (
             <Link

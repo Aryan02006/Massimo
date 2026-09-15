@@ -6,6 +6,7 @@ import Link from "next/link";
 import CartICon from "@/components/CartIcon";
 import { logout } from "@/components/auth";
 import { usePathname, useRouter } from "next/navigation";
+import { useSettings } from "@/context/SettingsContext";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -18,17 +19,25 @@ type UserData = {
   id?: string;
   username?: string;
   email?: string;
+  role?: string;
 };
 
 const NavbarPage = () => {
   const router = useRouter();
   const pathname = usePathname();
+  const { settings } = useSettings();
 
   const [user, setUser] = useState(false);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [imgError, setImgError] = useState(false);
+
+  // Reset image error state when logoUrl changes
+  useEffect(() => {
+    setImgError(false);
+  }, [settings.logoUrl]);
 
   useEffect(() => {
     const checkAuthentication = async () => {
@@ -117,9 +126,23 @@ const NavbarPage = () => {
 
         <Link
           href="/"
-          className="text-xl font-black uppercase tracking-[0.18em] transition-colors hover:text-red-700 md:flex-1 md:text-center"
+          className="flex items-center gap-2.5 transition-transform duration-200 hover:scale-[1.02] md:flex-1 md:justify-center"
         >
-          Massimo
+          {settings.logoUrl && !imgError ? (
+            <div className="relative flex items-center h-8 md:h-11 max-w-[170px] md:max-w-[220px]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={settings.logoUrl}
+                alt={settings.restaurantName || "Massimo"}
+                className="h-full w-auto max-h-8 md:max-h-11 object-contain"
+                onError={() => setImgError(true)}
+              />
+            </div>
+          ) : (
+            <span className="text-xl font-black uppercase tracking-[0.18em] text-red-500 transition-colors hover:text-red-700">
+              {settings.restaurantName || "Massimo"}
+            </span>
+          )}
         </Link>
 
         <div className="md:hidden">
@@ -182,9 +205,16 @@ const NavbarPage = () => {
                   <div className="absolute right-0 top-full mt-2 w-56 origin-top-right rounded-2xl border border-red-100 bg-white p-2 text-gray-800 shadow-xl ring-1 ring-black/5 z-50 animate-in fade-in zoom-in-95">
                     {userData?.username && (
                       <div className="border-b border-gray-100 px-3 py-2.5">
-                        <p className="text-xs font-medium uppercase tracking-wider text-gray-400">
-                          Signed in as
-                        </p>
+                        <div className="flex items-center justify-between">
+                          <p className="text-xs font-medium uppercase tracking-wider text-gray-400">
+                            Signed in as
+                          </p>
+                          {userData?.role === "admin" && (
+                            <span className="rounded-full bg-red-100 px-2 py-0.2 text-[10px] font-black uppercase tracking-wider text-red-600">
+                              Admin
+                            </span>
+                          )}
+                        </div>
                         <p className="truncate text-sm font-bold text-gray-900">
                           {userData.username}
                         </p>
@@ -197,26 +227,28 @@ const NavbarPage = () => {
                     )}
 
                     <div className="py-1">
-                      <Link
-                        href="/profile"
-                        onClick={() => setDropdownOpen(false)}
-                        className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-semibold text-gray-700 transition hover:bg-red-50 hover:text-red-600"
-                      >
-                        <svg
-                          className="h-4 w-4 text-red-500"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          strokeWidth={2}
-                          stroke="currentColor"
+                      {userData?.role === "admin" && (
+                        <Link
+                          href="/admin/dashboard"
+                          onClick={() => setDropdownOpen(false)}
+                          className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-bold text-red-600 transition hover:bg-red-50"
                         >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-                          />
-                        </svg>
-                        <span>My Profile</span>
-                      </Link>
+                          <svg
+                            className="h-4 w-4 text-red-500"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={2}
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z"
+                            />
+                          </svg>
+                          <span>Admin Dashboard</span>
+                        </Link>
+                      )}
 
                       <Link
                         href="/orders"
@@ -274,4 +306,3 @@ const NavbarPage = () => {
 };
 
 export default NavbarPage;
-

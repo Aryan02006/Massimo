@@ -3,6 +3,7 @@
 import { useState, useEffect, ReactNode } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
+import { useSettings } from "@/context/SettingsContext";
 
 interface AdminShellProps {
   children: ReactNode;
@@ -122,6 +123,7 @@ export default function AdminShell({
 }: AdminShellProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const { settings } = useSettings();
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [adminName, setAdminName] = useState("");
@@ -193,15 +195,26 @@ export default function AdminShell({
       >
         {/* Sidebar Header */}
         <div className="flex h-16 items-center justify-between border-b border-red-100 px-5">
-          <Link href="/admin/dashboard" className="flex items-center gap-2">
-            <div>
-              <h1 className="text-lg font-black uppercase tracking-[0.15em] text-red-500">
-                Massimo
-              </h1>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-gray-400">
-                Admin Panel
-              </p>
-            </div>
+          <Link href="/admin/dashboard" className="flex items-center gap-2.5">
+            {settings.logoUrl ? (
+              <div className="flex items-center h-8 max-w-[130px]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={settings.logoUrl}
+                  alt={settings.restaurantName || "Massimo"}
+                  className="max-h-8 w-auto object-contain"
+                />
+              </div>
+            ) : (
+              <div>
+                <h1 className="text-lg font-black uppercase tracking-[0.15em] text-red-500">
+                  {settings.restaurantName || "Massimo"}
+                </h1>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-gray-400">
+                  Admin Panel
+                </p>
+              </div>
+            )}
           </Link>
           <button
             onClick={() => setSidebarOpen(false)}
