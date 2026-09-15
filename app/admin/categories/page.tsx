@@ -301,7 +301,7 @@ export default function AdminCategoriesPage() {
   return (
     <AdminShell
       title="Category Management"
-      subtitle="Organize, create, and manage your restaurant menu categories"
+      subtitle="Manage your restaurant menu categories"
       actions={
         <div className="flex items-center gap-2.5">
           <Link
