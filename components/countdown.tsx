@@ -1,19 +1,21 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useSyncExternalStore } from "react";
 import Countdown from "react-countdown";
 
 const targetDate = new Date();
 targetDate.setDate(targetDate.getDate() + 5);
 
+const emptySubscribe = () => () => {};
+
 const CountDown = () => {
-  const [mounted, setMounted] = useState(false);
+  const isClient = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false,
+  );
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) {
+  if (!isClient) {
     return (
       <span className="font-bold text-5xl text-yellow-300">0d 00h 00m 00s</span>
     );
@@ -24,7 +26,7 @@ const CountDown = () => {
       date={targetDate}
       renderer={({ days, hours, minutes, seconds, completed }) =>
         completed ? (
-          <span>Time's up!</span>
+          <span>Time&apos;s up!</span>
         ) : (
           <span className="font-bold text-5xl text-yellow-300">
             {days}d {hours}h {minutes}m {seconds}s

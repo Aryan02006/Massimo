@@ -152,8 +152,39 @@ export default function AdminOrdersPage() {
   }, []);
 
   useEffect(() => {
-    fetchOrders();
-  }, [fetchOrders]);
+    let isMounted = true;
+    const init = async () => {
+      try {
+        const res = await fetch("/api/admin/orders", {
+          credentials: "include",
+        });
+        const data = await res.json();
+        if (isMounted) {
+          if (data.success) {
+            setOrders(data.orders || []);
+            if (data.stats) {
+              setStats(data.stats);
+            }
+          } else {
+            showToast(data.message || "Failed to fetch orders", "error");
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load orders:", err);
+        if (isMounted) {
+          showToast("Error loading orders", "error");
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+    init();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const handleStatusChange = async (orderId: string, newStatus: string) => {
     try {
@@ -294,6 +325,24 @@ export default function AdminOrdersPage() {
         </button>
       }
     >
+      {toastMessage && (
+        <div
+          className={`mb-6 flex items-center justify-between rounded-2xl px-5 py-3.5 text-sm font-semibold shadow-xs animate-in fade-in duration-200 ${
+            toastMessage.type === "success"
+              ? "border border-green-200 bg-green-50 text-green-800"
+              : "border border-red-200 bg-red-50 text-red-800"
+          }`}
+        >
+          <span>{toastMessage.text}</span>
+          <button
+            onClick={() => setToastMessage(null)}
+            className="text-xs font-bold uppercase opacity-70 hover:opacity-100"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+
       {/* KPI Stats Cards */}
       <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         <div className="rounded-2xl border border-red-100 bg-white p-4 shadow-xs gap-5 transition hover:shadow-sm">

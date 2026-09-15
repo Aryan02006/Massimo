@@ -11,7 +11,8 @@ import { useSettings } from "@/context/SettingsContext";
 const links = [
   { id: 1, title: "HomePage", url: "/" },
   { id: 2, title: "Menu", url: "/menu" },
-  { id: 3, title: "Contact", url: "/contact" },
+  { id: 3, title: "Orders", url: "/orders" },
+  { id: 4, title: "Contact", url: "/contact" },
 ];
 
 const MenuPage = () => {
@@ -22,8 +23,9 @@ const MenuPage = () => {
   const [user, setUser] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
 
-
   useEffect(() => {
+    let isMounted = true;
+
     const checkUser = async () => {
       try {
         const response = await fetch("/api/me", {
@@ -32,26 +34,32 @@ const MenuPage = () => {
         });
 
         if (!response.ok) {
-          setUser(false);
+          if (isMounted) setUser(false);
           return;
         }
 
         const data = await response.json();
 
-        if (data.success && data.authenticated) {
-          setUser(true);
-        } else {
-          setUser(false);
+        if (isMounted) {
+          if (data.success && data.authenticated) {
+            setUser(true);
+          } else {
+            setUser(false);
+          }
         }
       } catch (error) {
         console.error("Authentication check failed:", error);
-        setUser(false);
+        if (isMounted) setUser(false);
       } finally {
-        setCheckingAuth(false);
+        if (isMounted) setCheckingAuth(false);
       }
     };
 
     checkUser();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const handleLogout = async () => {
@@ -129,22 +137,6 @@ const MenuPage = () => {
             </Link>
           ) : (
             <>
-              <Link
-                href="/profile"
-                onClick={() => setOpen(false)}
-                className="rounded-full px-6 py-2 text-2xl font-bold uppercase tracking-wide transition-colors hover:bg-white/15"
-              >
-                My Profile
-              </Link>
-
-              <Link
-                href="/orders"
-                onClick={() => setOpen(false)}
-                className="rounded-full px-6 py-2 text-2xl font-bold uppercase tracking-wide transition-colors hover:bg-white/15"
-              >
-                Orders
-              </Link>
-
               <div onClick={() => setOpen(false)}>
                 <CartICon />
               </div>

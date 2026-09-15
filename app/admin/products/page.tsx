@@ -100,8 +100,37 @@ export default function AdminProductsPage() {
   }, []);
 
   useEffect(() => {
-    fetchProducts();
-  }, [fetchProducts]);
+    let isMounted = true;
+    const init = async () => {
+      try {
+        const res = await fetch("/api/admin/products", {
+          credentials: "include",
+        });
+        const data = await res.json();
+        if (isMounted) {
+          if (data.success) {
+            setProducts(data.products || []);
+            if (data.categories && data.categories.length > 0) {
+              setCategories(data.categories);
+            }
+            if (data.stats) {
+              setStats(data.stats);
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load products:", err);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+    init();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const handleFileUpload = async (file: File) => {
     if (!file) return;
@@ -384,6 +413,24 @@ export default function AdminProductsPage() {
           >
             All Products ({products.length})
           </button>
+          {allCategories.map((c) => {
+            const count = products.filter(
+              (p) => (p.catSlug || "").toLowerCase() === c.slug.toLowerCase(),
+            ).length;
+            return (
+              <button
+                key={c.slug}
+                onClick={() => setSelectedCategory(c.slug)}
+                className={`rounded-full px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider transition ${
+                  selectedCategory.toLowerCase() === c.slug.toLowerCase()
+                    ? "bg-red-500 text-white shadow-xs"
+                    : "bg-gray-100 text-gray-600 hover:bg-red-50 hover:text-red-600"
+                }`}
+              >
+                {c.title} ({count})
+              </button>
+            );
+          })}
         </div>
 
         <div className="flex items-center gap-3">
@@ -416,6 +463,58 @@ export default function AdminProductsPage() {
                 ✕
               </button>
             )}
+          </div>
+
+          {/* View Mode Toggle */}
+          <div className="flex items-center rounded-full border border-red-100 bg-gray-50/80 p-1">
+            <button
+              type="button"
+              onClick={() => setViewMode("grid")}
+              className={`rounded-full p-1.5 transition ${
+                viewMode === "grid"
+                  ? "bg-red-500 text-white shadow-xs"
+                  : "text-gray-400 hover:text-gray-600"
+              }`}
+              title="Grid View"
+            >
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={2}
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z"
+                />
+              </svg>
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode("table")}
+              className={`rounded-full p-1.5 transition ${
+                viewMode === "table"
+                  ? "bg-red-500 text-white shadow-xs"
+                  : "text-gray-400 hover:text-gray-600"
+              }`}
+              title="Table View"
+            >
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={2}
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 0 1 0 3.75H5.625a1.875 1.875 0 0 1 0-3.75Z"
+                />
+              </svg>
+            </button>
           </div>
         </div>
       </div>
@@ -524,7 +623,7 @@ export default function AdminProductsPage() {
                       >
                         {opt.title}{" "}
                         {opt.additionalPrice > 0
-                          ? `(+$${opt.additionalPrice})`
+                          ? `(+₹${opt.additionalPrice})`
                           : ""}
                       </span>
                     ))}
@@ -767,11 +866,11 @@ export default function AdminProductsPage() {
 
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-wider text-gray-700">
-                    Base Price ($) <span className="text-red-500">*</span>
+                    Base Price (₹) <span className="text-red-500">*</span>
                   </label>
                   <div className="relative mt-1.5">
                     <span className="absolute left-3.5 top-3 text-xs font-bold text-gray-400">
-                      $
+                      ₹
                     </span>
                     <input
                       type="number"
@@ -966,7 +1065,7 @@ export default function AdminProductsPage() {
                         />
                         <div className="relative w-28">
                           <span className="absolute left-2.5 top-1.5 text-xs font-bold text-gray-400">
-                            +$
+                            +₹
                           </span>
                           <input
                             type="number"

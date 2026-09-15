@@ -3,7 +3,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import AdminShell from "@/components/admin/AdminShell";
 import Link from "next/link";
-import Image from "next/image";
 
 interface Category {
   _id: string;
@@ -60,7 +59,6 @@ export default function AdminCategoriesPage() {
       if (data.success && data.categories) {
         setCategories(data.categories);
       } else {
-        // Fallback to admin products endpoint if categories endpoint is warming up
         const fallbackRes = await fetch("/api/admin/products", {
           credentials: "include",
         });
@@ -77,8 +75,39 @@ export default function AdminCategoriesPage() {
   }, []);
 
   useEffect(() => {
-    fetchCategories();
-  }, [fetchCategories]);
+    let isMounted = true;
+    const init = async () => {
+      try {
+        const res = await fetch("/api/admin/categories", {
+          credentials: "include",
+        });
+        const data = await res.json();
+        if (isMounted) {
+          if (data.success && data.categories) {
+            setCategories(data.categories);
+          } else {
+            const fallbackRes = await fetch("/api/admin/products", {
+              credentials: "include",
+            });
+            const fallbackData = await fallbackRes.json();
+            if (isMounted && fallbackData.success && fallbackData.categories) {
+              setCategories(fallbackData.categories);
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load categories:", err);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+    init();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const handleTitleChange = (val: string) => {
     setFormTitle(val);

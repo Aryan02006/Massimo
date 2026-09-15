@@ -40,13 +40,40 @@ type PlacedOrderInfo = {
   total: number;
 };
 
+interface RazorpaySuccessResponse {
+  razorpay_payment_id: string;
+  razorpay_order_id?: string;
+  razorpay_signature?: string;
+}
+
+interface RazorpayFailureResponse {
+  error?: {
+    code?: string;
+    description?: string;
+    source?: string;
+    step?: string;
+    reason?: string;
+  };
+}
+
+interface RazorpayInstance {
+  open: () => void;
+  on: (event: string, callback: (response: RazorpayFailureResponse) => void) => void;
+}
+
+declare global {
+  interface Window {
+    Razorpay?: new (options: Record<string, unknown>) => RazorpayInstance;
+  }
+}
+
 const loadRazorpayScript = (): Promise<boolean> => {
   return new Promise((resolve) => {
     if (typeof window === "undefined") {
       resolve(false);
       return;
     }
-    if ((window as any).Razorpay) {
+    if (window.Razorpay) {
       resolve(true);
       return;
     }
@@ -257,7 +284,7 @@ export default function CheckoutPage() {
           theme: {
             color: "#ef4444",
           },
-          handler: async function (response: any) {
+          handler: async function (response: RazorpaySuccessResponse) {
             try {
               const verifyResponse = await fetch("/api/razorpay/verify", {
                 method: "POST",
@@ -316,8 +343,12 @@ export default function CheckoutPage() {
           },
         };
 
-        const razorpayInstance = new (window as any).Razorpay(options);
-        razorpayInstance.on("payment.failed", function (response: any) {
+        if (!window.Razorpay) {
+          throw new Error("Razorpay SDK not loaded");
+        }
+
+        const razorpayInstance = new window.Razorpay(options);
+        razorpayInstance.on("payment.failed", function (response: RazorpayFailureResponse) {
           alert(`Payment failed: ${response.error?.description || "Transaction declined"}`);
           setPlacing(false);
         });

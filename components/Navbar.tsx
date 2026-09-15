@@ -32,14 +32,15 @@ const NavbarPage = () => {
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const [imgError, setImgError] = useState(false);
+  const [failedLogoUrl, setFailedLogoUrl] = useState<string | null>(null);
 
-  // Reset image error state when logoUrl changes
-  useEffect(() => {
-    setImgError(false);
-  }, [settings.logoUrl]);
+  const hasValidLogo = Boolean(
+    settings.logoUrl && failedLogoUrl !== settings.logoUrl,
+  );
 
   useEffect(() => {
+    let isMounted = true;
+
     const checkAuthentication = async () => {
       try {
         const response = await fetch("/api/me", {
@@ -50,26 +51,35 @@ const NavbarPage = () => {
 
         const data = await response.json();
 
-        if (response.ok && data.success && data.authenticated) {
-          setUser(true);
-          setUserData(data.user || null);
-        } else {
-          setUser(false);
-          setUserData(null);
+        if (isMounted) {
+          if (response.ok && data.success && data.authenticated) {
+            setUser(true);
+            setUserData(data.user || null);
+          } else {
+            setUser(false);
+            setUserData(null);
+          }
         }
       } catch (error) {
         console.error("Authentication check failed:", error);
-        setUser(false);
-        setUserData(null);
+        if (isMounted) {
+          setUser(false);
+          setUserData(null);
+        }
       } finally {
-        setCheckingAuth(false);
+        if (isMounted) {
+          setCheckingAuth(false);
+        }
       }
     };
 
     checkAuthentication();
+
+    return () => {
+      isMounted = false;
+    };
   }, [pathname]);
 
-  // Close dropdown on click outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -128,14 +138,14 @@ const NavbarPage = () => {
           href="/"
           className="flex items-center gap-2.5 transition-transform duration-200 hover:scale-[1.02] md:flex-1 md:justify-center"
         >
-          {settings.logoUrl && !imgError ? (
+          {hasValidLogo ? (
             <div className="relative flex items-center h-8 md:h-11 max-w-[170px] md:max-w-[220px]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={settings.logoUrl}
                 alt={settings.restaurantName || "Massimo"}
                 className="h-full w-auto max-h-8 md:max-h-11 object-contain"
-                onError={() => setImgError(true)}
+                onError={() => setFailedLogoUrl(settings.logoUrl)}
               />
             </div>
           ) : (
@@ -172,7 +182,6 @@ const NavbarPage = () => {
                 <CartICon />
               </div>
 
-              {/* User Icon & Dropdown */}
               <div className="relative" ref={dropdownRef}>
                 <button
                   type="button"
@@ -200,7 +209,6 @@ const NavbarPage = () => {
                   </svg>
                 </button>
 
-                {/* Dropdown Menu */}
                 {dropdownOpen && (
                   <div className="absolute right-0 top-full mt-2 w-56 origin-top-right rounded-2xl border border-red-100 bg-white p-2 text-gray-800 shadow-xl ring-1 ring-black/5 z-50 animate-in fade-in zoom-in-95">
                     {userData?.username && (

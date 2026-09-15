@@ -43,10 +43,10 @@ export async function POST(request: NextRequest) {
         order: razorpayOrder,
         keyId: RAZORPAY_KEY_ID,
       });
-    } catch (apiError: any) {
-      console.warn("Razorpay API error, checking fallback:", apiError?.message || apiError);
+    } catch (apiError: unknown) {
+      const err = apiError as { message?: string; error?: { description?: string } };
+      console.warn("Razorpay API error, checking fallback:", err?.message || apiError);
 
-      // If key secret is not set or API credentials mismatch, provide test order
       if (!RAZORPAY_KEY_SECRET) {
         const fallbackOrder = {
           id: `order_test_${Date.now()}`,
@@ -67,15 +67,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          message: apiError?.error?.description || apiError?.message || "Failed to create Razorpay order",
+          message: err?.error?.description || err?.message || "Failed to create Razorpay order",
         },
         { status: 500 },
       );
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = error as { message?: string };
     console.error("Create Razorpay order error:", error);
     return NextResponse.json(
-      { success: false, message: error?.message || "Internal server error" },
+      { success: false, message: err?.message || "Internal server error" },
       { status: 500 },
     );
   }

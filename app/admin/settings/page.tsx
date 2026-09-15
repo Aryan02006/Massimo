@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import AdminShell from "@/components/admin/AdminShell";
 import { DEFAULT_SETTINGS, RestaurantSettings } from "@/lib/settings";
 
@@ -9,7 +9,7 @@ interface Toast {
   message: string;
 }
 
-type SettingsTab = "branding" | "store" | "delivery" | "security";
+type SettingsTab = "branding" | "security";
 
 export default function AdminSettingsPage() {
   const [settings, setSettings] =
@@ -17,11 +17,9 @@ export default function AdminSettingsPage() {
   const [initialSettings, setInitialSettings] =
     useState<RestaurantSettings>(DEFAULT_SETTINGS);
   const [activeTab, setActiveTab] = useState<SettingsTab>("branding");
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [toast, setToast] = useState<Toast | null>(null);
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [passwordForm, setPasswordForm] = useState({
@@ -30,51 +28,86 @@ export default function AdminSettingsPage() {
     confirmPassword: "",
   });
   const [changingPassword, setChangingPassword] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
 
-  // Fetch settings from API
+  const hasUnsavedChanges =
+    JSON.stringify(settings) !== JSON.stringify(initialSettings);
+
+  const showToast = useCallback(
+    (type: "success" | "error" | "info", message: string) => {
+      setToast({ type, message });
+      setTimeout(() => {
+        setToast((prev) => (prev?.message === message ? null : prev));
+      }, 4000);
+    },
+    [],
+  );
+
   useEffect(() => {
+    let isMounted = true;
+
     const fetchSettings = async () => {
       try {
-        setLoading(true);
         const res = await fetch("/api/admin/settings", {
           credentials: "include",
           cache: "no-store",
         });
         const data = await res.json();
-        if (res.ok && data.success && data.settings) {
-          setSettings(data.settings);
-          setInitialSettings(data.settings);
-        } else {
-          showToast("error", data.message || "Failed to load settings");
+        if (isMounted) {
+          if (res.ok && data.success && data.settings) {
+            setSettings(data.settings);
+            setInitialSettings(data.settings);
+          } else {
+            showToast("error", data.message || "Failed to load settings");
+          }
         }
       } catch (err) {
         console.error("Fetch settings error:", err);
-        showToast("error", "Error connecting to server");
-      } finally {
-        setLoading(false);
+        if (isMounted) {
+          showToast("error", "Error connecting to server");
+        }
       }
     };
 
     fetchSettings();
-  }, []);
 
-  // Detect unsaved changes
-  useEffect(() => {
-    const changed =
-      JSON.stringify(settings) !== JSON.stringify(initialSettings);
-    setHasUnsavedChanges(changed);
-  }, [settings, initialSettings]);
+    return () => {
+      isMounted = false;
+    };
+  }, [showToast]);
 
-  // Toast helper
-  const showToast = (type: "success" | "error" | "info", message: string) => {
-    setToast({ type, message });
-    setTimeout(() => {
-      setToast((prev) => (prev?.message === message ? null : prev));
-    }, 4000);
-  };
+  const handleSaveSettings = useCallback(async () => {
+    try {
+      setSaving(true);
+      const res = await fetch("/api/admin/settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(settings),
+      });
 
-  // Keyboard shortcut Ctrl/Cmd + S
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setInitialSettings(settings);
+        showToast("success", "Settings saved and published successfully!");
+
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(
+            new CustomEvent("massimo-settings-updated", {
+              detail: settings,
+            }),
+          );
+        }
+      } else {
+        showToast("error", data.message || "Failed to save settings");
+      }
+    } catch (err) {
+      console.error("Save error:", err);
+      showToast("error", "Error saving settings");
+    } finally {
+      setSaving(false);
+    }
+  }, [settings, showToast]);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "s") {
@@ -84,34 +117,11 @@ export default function AdminSettingsPage() {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [settings]);
+  }, [handleSaveSettings]);
 
-  // Handle setting updates
-  const handleFieldChange = (field: keyof RestaurantSettings, value: any) => {
-    setSettings((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
-
-  const handleSocialChange = (
-    key: keyof RestaurantSettings["socials"],
-    value: string,
-  ) => {
-    setSettings((prev) => ({
-      ...prev,
-      socials: {
-        ...prev.socials,
-        [key]: value,
-      },
-    }));
-  };
-
-  // File Upload Handler
   const handleFileUpload = async (file: File) => {
     if (!file) return;
 
-    // Validate size (< 10MB)
     if (file.size > 10 * 1024 * 1024) {
       showToast("error", "Image must be smaller than 10MB");
       return;
@@ -146,42 +156,6 @@ export default function AdminSettingsPage() {
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
-    }
-  };
-
-  // Save Settings
-  const handleSaveSettings = async () => {
-    try {
-      setSaving(true);
-      const res = await fetch("/api/admin/settings", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(settings),
-      });
-
-      const data = await res.json();
-      if (res.ok && data.success) {
-        setInitialSettings(settings);
-        setHasUnsavedChanges(false);
-        showToast("success", "Settings saved and published successfully!");
-
-        // Dispatch broadcast event for instantaneous client sync
-        if (typeof window !== "undefined") {
-          window.dispatchEvent(
-            new CustomEvent("massimo-settings-updated", {
-              detail: settings,
-            }),
-          );
-        }
-      } else {
-        showToast("error", data.message || "Failed to save settings");
-      }
-    } catch (err) {
-      console.error("Save error:", err);
-      showToast("error", "Error saving settings");
-    } finally {
-      setSaving(false);
     }
   };
 
@@ -286,8 +260,27 @@ export default function AdminSettingsPage() {
         </div>
       }
     >
+      {toast && (
+        <div
+          className={`mb-6 flex items-center justify-between rounded-2xl px-5 py-3.5 text-sm font-semibold shadow-sm animate-in fade-in duration-200 ${
+            toast.type === "success"
+              ? "border border-green-200 bg-green-50 text-green-800"
+              : toast.type === "error"
+                ? "border border-red-200 bg-red-50 text-red-800"
+                : "border border-blue-200 bg-blue-50 text-blue-800"
+          }`}
+        >
+          <span>{toast.message}</span>
+          <button
+            onClick={() => setToast(null)}
+            className="text-xs font-bold uppercase opacity-70 hover:opacity-100"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+
       <div className="rounded-3xl border border-red-100 bg-white shadow-xs overflow-hidden">
-        {/* Navigation Tabs */}
         <div className="border-b border-red-100 bg-red-50/40 px-4 sm:px-8 pt-4">
           <div className="flex flex-wrap gap-2 sm:gap-3">
             {[
@@ -369,6 +362,7 @@ export default function AdminSettingsPage() {
                 <div className="flex flex-col sm:flex-row items-center gap-6">
                   <div className="flex h-28 w-44 shrink-0 items-center justify-center rounded-2xl border-2 border-dashed border-gray-200 bg-gray-50 p-3">
                     {settings.logoUrl ? (
+                      /* eslint-disable-next-line @next/next/no-img-element */
                       <img
                         src={settings.logoUrl}
                         alt="Current logo"
@@ -454,7 +448,7 @@ export default function AdminSettingsPage() {
                     Current Admin Password *
                   </label>
                   <input
-                    type={showPassword ? "text" : "password"}
+                    type="password"
                     required
                     value={passwordForm.currentPassword}
                     onChange={(e) =>
@@ -473,7 +467,7 @@ export default function AdminSettingsPage() {
                     New Password (Min. 6 Characters) *
                   </label>
                   <input
-                    type={showPassword ? "text" : "password"}
+                    type="password"
                     required
                     minLength={6}
                     value={passwordForm.newPassword}
@@ -493,7 +487,7 @@ export default function AdminSettingsPage() {
                     Confirm New Password *
                   </label>
                   <input
-                    type={showPassword ? "text" : "password"}
+                    type="password"
                     required
                     value={passwordForm.confirmPassword}
                     onChange={(e) =>

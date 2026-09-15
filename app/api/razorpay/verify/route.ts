@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
       orderId: result.insertedId.toString(),
       paymentId: razorpay_payment_id,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Payment verification error:", error);
     return NextResponse.json(
       { success: false, message: "Internal server error" },
